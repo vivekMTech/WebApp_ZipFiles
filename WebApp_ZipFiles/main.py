@@ -40,7 +40,7 @@ def uploadRoute():  # method for uploading zip file
 @app.route("/<filename>", methods=['GET', 'POST'])  # route for downloading file
 def download_file(filename):  # method for download file
     file_path = "extracted_files/" + filename  # file path, where file is located
-    return send_file(file_path, as_attachment=True, attachment_filename='')  # send_file() send content to client pc.
+    return send_file(file_path, as_attachment=True)  # send_file() send content to client pc.
 
 
 if __name__ == '__main__':  # init main
