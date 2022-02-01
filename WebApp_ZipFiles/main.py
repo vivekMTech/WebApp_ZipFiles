@@ -24,14 +24,11 @@ def extract_zip(file_name, dir_name):  # extract zip method
 @app.route("/", methods=['GET', 'POST'])  # index route
 @app.route('/upload', methods=['GET', 'POST'])  # upload route
 def uploadRoute():  # method for uploading zip file
-    lst = []  # lst for files
     form = upload_zip()  # initialize form object
     if form.validate_on_submit():  # if data is valid then process further
         zip_file = form.file.data  # get file in zip_file var
         extract_zip(zip_file, 'extracted_files')  # extract zip file
-        for files in os.listdir("extracted_files"):  # appending extracted file in lst
-            lst.append(files)
-        return render_template("shownZipFiles.html", files=lst)  # call "shownZipFiles.html" and send file lst
+        return render_template("shownZipFiles.html", files=os.listdir("extracted_files"))  # call "shownZipFiles.html" and send file lst
     else:
         flash("Please, Select only zip file.", category='danger')  # if file are not validate then print flash message
     return render_template("uploadZip.html", form=form)  # call "uploadZip.html" with form
