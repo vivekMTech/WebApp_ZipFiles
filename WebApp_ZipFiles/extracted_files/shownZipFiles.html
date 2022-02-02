@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+Shown Files from Zip
+{% endblock %}
+
+{% block header %}
+Shown Files from Zip
+{% endblock %}
+
+{% block content %}
+<div style="margin: 1% 5% 0% 5%;">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Filename</th>
+                <th scope="col">Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ file }}</td>
+                    <td><a href="{{ url_for('download_file', filename=file) }}">Click Here!</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
