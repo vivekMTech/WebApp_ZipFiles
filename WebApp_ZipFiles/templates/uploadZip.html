@@ -10,11 +10,11 @@ Upload Zip File
 
 
 {% block content %}
-<div style="margin: 6% 0% 10% 32%;">
+<div style="margin: 6% 35% 10% 35%;">
  <form method="POST"  enctype="multipart/form-data">
         {{ form.csrf_token }}
-        {{ form.file(class="btn btn-lg btn-secondary") }}
-        <button type="submit" class="btn btn-lg btn-secondary">Upload</button>
+        {{ form.file(class="btn btn-lg btn-muted")}}
+        <button type="submit" class="btn btn-lg btn-dark">Upload</button>
     </form>
 </div>
 {% endblock %}
