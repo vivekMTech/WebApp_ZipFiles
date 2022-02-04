@@ -1,0 +1,13 @@
+certifi==2020.6.20
+click==8.0.3
+EasyProcess==1.1
+entrypoint2==1.0
+Flask==2.0.2
+Flask-WTF==1.0.0
+itsdangerous==2.0.1
+Jinja2==3.0.3
+MarkupSafe==2.0.1
+patool==1.12
+pyunpack==0.2.2
+Werkzeug==2.0.2
+WTForms==3.0.1
