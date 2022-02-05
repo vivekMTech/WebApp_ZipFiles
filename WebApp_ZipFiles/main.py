@@ -21,14 +21,14 @@ def extract_zip(filename):  # extract zip method
     child_dir_path = os.path.join("extracted_files", filename)  # prepare path for sub folder
     try:
         shutil.rmtree(child_dir_path)  # removing files from sub-folder
-    except OSError as error:
+    except OSError:
         os.makedirs(child_dir_path)  # If folder was not their then it created.
 
     try:
         patoolib.extract_archive(os.path.join('ZipFiles/', filename), outdir=child_dir_path)  # extract file
         os.remove(os.path.join('ZipFiles/', filename))  # remove copied zip or rar file
-    except Exception as error: # exception if zip or rar is corrupt
-        flash("Please, Your ZIP or RAR files is Corrupted.", category='danger')
+    except Exception as error:  # exception if zip or rar is corrupt
+        flash("Your ZIP or RAR files is Corrupted.", category='danger')
         print("Exception : {}".format(error))
     return child_dir_path
 
@@ -41,10 +41,16 @@ def upload_route():  # method for uploading zip file
     if form.validate_on_submit():  # if data is valid then process further
         zip_file = form.file.data  # get file in zip_file var
         filename = secure_filename(form.file.data.filename)  # get filename
-        os.makedirs('ZipFiles', exist_ok=True)  # make ZipFile directory for storing zip or rar files temp
+        os.makedirs('ZipFiles', exist_ok=True)  # make ZipFile directory for storing zip or rar files temporary
         zip_file.save(os.path.join('ZipFiles/', filename))  # save file
         extracted_path = extract_zip(filename)  # extract zip file
-        return render_template("shownZipFiles.html", files=os.listdir(extracted_path))
+        files = ""
+        for file in os.walk(extracted_path):  # check for directory
+            if not file[-1]:  # if it contains directory then last index are empty.
+                flash("You archive also contains directory.", category='danger')
+            else:
+                files = file[-1]  # filenames located in last index
+        return render_template("shownZipFiles.html", files=files)
     else:
         # if file are not validate then print flash message
         flash("Please, Select only ZIP or RAR files.", category='danger')
