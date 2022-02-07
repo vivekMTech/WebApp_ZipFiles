@@ -10,24 +10,24 @@ import requests
 
 app = Flask(__name__)  # initialize flask app
 app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'  # secret key for authentication
-global extracted_path, folder_path, files_path
+global extracted_path, folder_path, files_path, filename
 
 
-class upload_zip(FlaskForm):  # class for fileField form
+class UploadForm(FlaskForm):  # class for fileField form
     file = FileField(label="Select file : ",
                      validators=[FileAllowed(['zip', 'rar']), FileRequired()])  # validators only allow zip files
 
 
-def extract_zip(filename):  # extract zip method
-    child_dir_path = os.path.join("extracted_files", filename)  # prepare path for sub folder
+def extract_zip(file_name):  # extract zip method
+    child_dir_path = os.path.join("extracted_files", file_name)  # prepare path for sub folder
     try:
         shutil.rmtree(child_dir_path)  # removing files from sub-folder
     except OSError:
         os.makedirs(child_dir_path)  # If folder was not their then it created.
 
     try:
-        patoolib.extract_archive(os.path.join('ZipFiles/', filename), outdir=child_dir_path)  # extract file
-        os.remove(os.path.join('ZipFiles/', filename))  # remove copied zip or rar file
+        patoolib.extract_archive(os.path.join('ZipFiles/', file_name), outdir=child_dir_path)  # extract file
+        os.remove(os.path.join('ZipFiles/', file_name))  # remove copied zip or rar file
     except Exception as error:  # exception if zip or rar is corrupt
         flash("Your ZIP or RAR files is Corrupted.", category='danger')
         print("Exception : {}".format(error))
@@ -37,8 +37,8 @@ def extract_zip(filename):  # extract zip method
 @app.route("/", methods=['GET', 'POST'])  # index route
 @app.route('/upload', methods=['GET', 'POST'])  # upload route
 def upload_route():  # method for uploading zip file
-    global extracted_path, files_path
-    form = upload_zip()  # initialize form object
+    global extracted_path, files_path, filename
+    form = UploadForm()  # initialize form object
     if form.validate_on_submit():  # if data is valid then process further
         zip_file = form.file.data  # get file in zip_file var
         filename = secure_filename(form.file.data.filename)  # get filename
@@ -60,39 +60,39 @@ def upload_route():  # method for uploading zip file
 
 @app.route("/download_route")  # route for success downloaded file
 def downloaded_page():  # method for downloaded page
-    downloaded_file_path = "downloaded_files"
-    flash("Files Downloaded at {} location".format(os.path.join(os.getcwd(), downloaded_file_path)), category='success')
+    flash("Files Downloaded at {} location".format(os.getcwd() + "/downloaded_files" + filename), category='success')
     return render_template("downloaded.html")  # render downloaded page
 
 
 @app.route("/download_all")  # route for downloading all file
 def download_all():  # method for download all file
-    global extracted_path, folder_path, files_path
-    downloaded_file_path = "downloaded_files"
+    global extracted_path, folder_path, filename
+    downloaded_file_path = os.path.join("downloaded_files", filename)
     try:
         shutil.rmtree(downloaded_file_path)  # removing files from downloaded folder
     except OSError:
         os.makedirs(downloaded_file_path)  # If folder was not their then it created.
+
     for file in os.walk(extracted_path):  # walk through all files
         for f_name in file[-1]:
             folder_path = file[0]  # store path of file in folder_path
             file_path = folder_path + "/" + f_name  # file path, where file is located
             # make request for file
             data = requests.get("http://192.168.3.127:5000/" + file_path, allow_redirects=True)
-            os.chdir(os.path.join(os.getcwd(), downloaded_file_path))  # change directory 'downloaded_file'
-            open(f_name, 'wb').write(data.content)  # write contents of files
-    return redirect(url_for("downloaded_page"))   # redirect downloaded page
+            with open(os.path.join(downloaded_file_path, f_name), "wb") as f:
+                f.write(data.content)  # write contents of files
+    return redirect(url_for("downloaded_page"))  # redirect downloaded page
 
 
-@app.route("/<filename>", methods=['GET', 'POST'])  # route for downloading file
-def download_file(filename):  # method for download file
+@app.route("/<file_name>", methods=['GET', 'POST'])  # route for downloading file
+def download_file(file_name):  # method for download file
     global extracted_path, folder_path, files_path
 
     for file in os.walk(extracted_path):  # walk through all files
-        if filename in file[-1]:  # check file is presented in list or not
+        if file_name in file[-1]:  # check file is presented in list or not
             folder_path = file[0]  # store path of file in folder_path
 
-    file_path = folder_path + "/" + filename  # file path, where file is located
+    file_path = folder_path + "/" + file_name  # file path, where file is located
     return send_file(file_path, as_attachment=True)  # send_file() send content to client pc.
 
 
