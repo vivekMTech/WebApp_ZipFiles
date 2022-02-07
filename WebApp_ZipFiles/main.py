@@ -44,12 +44,12 @@ def upload_route():  # method for uploading zip file
         os.makedirs('ZipFiles', exist_ok=True)  # make ZipFile directory for storing zip or rar files temporary
         zip_file.save(os.path.join('ZipFiles/', filename))  # save file
         extracted_path = extract_zip(filename)  # extract zip file
-        files = ""
+        files = []
         for file in os.walk(extracted_path):  # check for directory
             if not file[-1]:  # if it contains directory then last index are empty.
                 flash("You archive also contains directory.", category='danger')
             else:
-                files = file[-1]  # filenames located in last index
+                files.append(file[-1])  # filenames located in last index
         return render_template("shownZipFiles.html", files=files)
     else:
         # if file are not validate then print flash message

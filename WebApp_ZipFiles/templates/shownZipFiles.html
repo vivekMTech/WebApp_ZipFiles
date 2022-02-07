@@ -19,11 +19,13 @@ Shown Files from Zip
         </thead>
         <tbody>
             {% for file in files %}
+                {% for f in range(file|length) %}
                 <tr>
-                    <td>{{ file }}</td>
+                    <td>{{ file[f] }}</td>
                     <td><a href="{{ url_for('download_file', filename=file) }}">Click Here!</a></td>
                 </tr>
             {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
     <div style="text-align : center; margin-top:10%; font-size:22px">
