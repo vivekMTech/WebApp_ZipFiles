@@ -6,7 +6,6 @@ import patoolib  # for extracting archive files
 import shutil  # removing files from pwd
 from werkzeug.utils import secure_filename  # get file name
 import os
-import requests
 
 app = Flask(__name__)  # initialize flask app
 app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'  # secret key for authentication
@@ -45,13 +44,13 @@ def upload_route():  # method for uploading zip file
         os.makedirs('ZipFiles', exist_ok=True)  # make ZipFile directory for storing zip or rar files temporary
         zip_file.save(os.path.join('ZipFiles/', filename))  # save file
         extracted_path = extract_zip(filename)  # extract zip file
-        files_path = []
+        files_path = []  # prepare list
         for file in os.walk(extracted_path):  # check for directory
             if not file[-1]:  # if it contains directory then last index are empty.
                 pass
             else:
                 files_path.append(file[-1])  # filenames located in last index
-        return render_template("shownZipFiles.html", files=files_path)
+        return render_template("shownZipFiles.html", files=files_path, extracted_path=os.walk(extracted_path))
     else:
         # if file are not validate then print flash message
         flash("Please, Select only ZIP or RAR files.", category='danger')
@@ -77,10 +76,6 @@ def download_all():  # method for download all file
         for f_name in file[-1]:
             folder_path = file[0]  # store path of file in folder_path
             file_path = folder_path + "/" + f_name  # file path, where file is located
-            # make request for file
-            data = requests.get("http://192.168.3.127:5000/" + file_path, allow_redirects=True)
-            with open(os.path.join(downloaded_file_path, f_name), "wb") as f:
-                f.write(data.content)  # write contents of files
     return redirect(url_for("downloaded_page"))  # redirect downloaded page
 
 

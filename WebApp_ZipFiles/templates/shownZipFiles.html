@@ -6,11 +6,13 @@ Shown Files from Zip
 
 {% block script %}
 <script type="text/javascript">
-   $(document).ready(function() {
-   $('#btnClk').on('click', function () {
-            alert('Linked');
-        });
-    });
+function download_all(files){
+    files.forEach((file) => {
+        for(var i=0; i<file.length; i++){
+            alert(file[i])
+        }
+    })
+}
 </script>
 {% endblock %}
 
@@ -25,8 +27,7 @@ Shown Files from Zip
 </div>
 
 <div style="margin:1% 0% 1% 0%; font-size:22px; margin-right:5%; float:right">
-    <a class="text-dark" href="#" id="downloadAll">Download All!</a>
-    <button id="btnClk">db</button>
+    <a class="text-dark" href="#" onclick=download_all({{ files }})>Download All!</a>
 </div>
 
 <div style="margin: 1% 5% 0% 5%;">
