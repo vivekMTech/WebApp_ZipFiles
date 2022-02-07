@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, send_file  # import flask and their classes
+from flask import Flask, render_template, flash, send_file, url_for, redirect  # import flask and their classes
 from flask_wtf import FlaskForm  # flask form for uploading zip files
 from flask_wtf.file import FileAllowed, FileRequired  # allowed files
 from wtforms import FileField  # file field for uploading files
@@ -6,10 +6,11 @@ import patoolib  # for extracting archive files
 import shutil  # removing files from pwd
 from werkzeug.utils import secure_filename  # get file name
 import os
+import requests
 
 app = Flask(__name__)  # initialize flask app
 app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'  # secret key for authentication
-global extracted_path, folder_path
+global extracted_path, folder_path, files_path
 
 
 class upload_zip(FlaskForm):  # class for fileField form
@@ -36,7 +37,7 @@ def extract_zip(filename):  # extract zip method
 @app.route("/", methods=['GET', 'POST'])  # index route
 @app.route('/upload', methods=['GET', 'POST'])  # upload route
 def upload_route():  # method for uploading zip file
-    global extracted_path
+    global extracted_path, files_path
     form = upload_zip()  # initialize form object
     if form.validate_on_submit():  # if data is valid then process further
         zip_file = form.file.data  # get file in zip_file var
@@ -44,22 +45,48 @@ def upload_route():  # method for uploading zip file
         os.makedirs('ZipFiles', exist_ok=True)  # make ZipFile directory for storing zip or rar files temporary
         zip_file.save(os.path.join('ZipFiles/', filename))  # save file
         extracted_path = extract_zip(filename)  # extract zip file
-        files = []
+        files_path = []
         for file in os.walk(extracted_path):  # check for directory
             if not file[-1]:  # if it contains directory then last index are empty.
-                flash("You archive also contains directory.", category='danger')
+                pass
             else:
-                files.append(file[-1])  # filenames located in last index
-        return render_template("shownZipFiles.html", files=files)
+                files_path.append(file[-1])  # filenames located in last index
+        return render_template("shownZipFiles.html", files=files_path)
     else:
         # if file are not validate then print flash message
         flash("Please, Select only ZIP or RAR files.", category='danger')
     return render_template("uploadZip.html", form=form)  # call "uploadZip.html" with form
 
 
+@app.route("/download_route")  # route for success downloaded file
+def downloaded_page():  # method for downloaded page
+    downloaded_file_path = "downloaded_files"
+    flash("Files Downloaded at {} location".format(os.path.join(os.getcwd(), downloaded_file_path)), category='success')
+    return render_template("downloaded.html")  # render downloaded page
+
+
+@app.route("/download_all")  # route for downloading all file
+def download_all():  # method for download all file
+    global extracted_path, folder_path, files_path
+    downloaded_file_path = "downloaded_files"
+    try:
+        shutil.rmtree(downloaded_file_path)  # removing files from downloaded folder
+    except OSError:
+        os.makedirs(downloaded_file_path)  # If folder was not their then it created.
+    for file in os.walk(extracted_path):  # walk through all files
+        for f_name in file[-1]:
+            folder_path = file[0]  # store path of file in folder_path
+            file_path = folder_path + "/" + f_name  # file path, where file is located
+            # make request for file
+            data = requests.get("http://192.168.3.127:5000/" + file_path, allow_redirects=True)
+            os.chdir(os.path.join(os.getcwd(), downloaded_file_path))  # change directory 'downloaded_file'
+            open(f_name, 'wb').write(data.content)  # write contents of files
+    return redirect(url_for("downloaded_page"))   # redirect downloaded page
+
+
 @app.route("/<filename>", methods=['GET', 'POST'])  # route for downloading file
 def download_file(filename):  # method for download file
-    global extracted_path, folder_path
+    global extracted_path, folder_path, files_path
 
     for file in os.walk(extracted_path):  # walk through all files
         if filename in file[-1]:  # check file is presented in list or not
@@ -70,4 +97,4 @@ def download_file(filename):  # method for download file
 
 
 if __name__ == '__main__':  # init main
-    app.run(debug=True)  # run app in debug mode
+    app.run('0.0.0.0', debug=True)  # run app in debug mode

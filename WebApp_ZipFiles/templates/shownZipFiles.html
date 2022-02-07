@@ -9,6 +9,14 @@ Shown Files from Zip
 {% endblock %}
 
 {% block content %}
+<div style="margin:1% 0% 1% 0%; font-size:22px; margin-left:5%; float:left" >
+    <a class="text-dark" href="{{ url_for('upload_route') }}">Back to Upload!</a>
+</div>
+
+<div style="margin:1% 0% 1% 0%; font-size:22px; margin-right:5%; float:right">
+    <a class="text-dark" href="{{ url_for('download_all') }}">Download All!</a>
+</div>
+
 <div style="margin: 1% 5% 0% 5%;">
     <table class="table table-hover">
         <thead>
@@ -28,8 +36,5 @@ Shown Files from Zip
         {% endfor %}
         </tbody>
     </table>
-    <div style="text-align : center; margin-top:10%; font-size:22px">
-         <a class="text-dark" href="{{ url_for('upload_route') }}">Click Here for extracting more files!</a>
-    </div>
 </div>
 {% endblock %}
