@@ -9,7 +9,7 @@ import os
 
 app = Flask(__name__)  # initialize flask app
 app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'  # secret key for authentication
-global extracted_path
+global extracted_path, folder_path
 
 
 class upload_zip(FlaskForm):  # class for fileField form
@@ -59,8 +59,13 @@ def upload_route():  # method for uploading zip file
 
 @app.route("/<filename>", methods=['GET', 'POST'])  # route for downloading file
 def download_file(filename):  # method for download file
-    global extracted_path
-    file_path = extracted_path + "/" + filename  # file path, where file is located
+    global extracted_path, folder_path
+
+    for file in os.walk(extracted_path):  # walk through all files
+        if filename in file[-1]:  # check file is presented in list or not
+            folder_path = file[0]  # store path of file in folder_path
+
+    file_path = folder_path + "/" + filename  # file path, where file is located
     return send_file(file_path, as_attachment=True)  # send_file() send content to client pc.
 
 
