@@ -8,6 +8,7 @@ Shown Files from Zip
 <script type="text/javascript">
 function download_all(){
     var file_names = JSON.parse({{ json_file_names | tojson }})
+    console.log(file_names)
     $.ajax({
           url: '/',
           success: function(data) {
@@ -19,6 +20,7 @@ function download_all(){
                 link.href=window.URL.createObjectURL(blob);
                 link.download=file[i];
                 link.click();
+                console.log(link)
             }
           })
        }
