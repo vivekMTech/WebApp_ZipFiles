@@ -8,4 +8,4 @@ The goal of this task is to design and develop a web application that extract al
 
 Develop a web application page where users can upload a zip file and all the files within that uploaded zip file are shown on the web page. Users should be able to download those files individually.
 
-<a href="https://extract-zip.herokuapp.com/">Open WebApp</a>
+<a href="https://extract-archive.herokuapp.com/">Open Extract Archive WebApp</a>
